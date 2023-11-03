@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Categorie {
+  id Int @id @default(autoincrement())
+  name String @unique
+  description String
+  products Product []
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  price Float
+  description String
+  url_image String? @default("sin cargar")
+  stock Int
+  categorie_Id Int?
+  categorie Categorie? @relation(fields: [categorie_Id], references: [id], onDelete: Cascade)
+  order_Details Order_Detail [] 
+}
+
+model Order_Detail{
+  id Int @id @default(autoincrement())
+  order_Id Int
+  product_Id Int
+  price Float
+  quantity Int
+  product Product @relation(fields: [product_Id], references: [id], onDelete: Cascade)
+  order Order @relation(fields: [order_Id], references: [id], onDelete: Cascade)
+}
+
+model Order{
+  id Int @id @default(autoincrement())
+  customer_Id Int
+  ammount Int
+  order_date DateTime @default(now())
+  order_status Boolean @default(true)
+  order_Details Order_Detail[]
+  customer User @relation(fields: [customer_Id], references: [id], onDelete: Cascade)
+}
+
+model User{
+  id Int @id @default(autoincrement())
+  email String @unique
+  password String
+  full_name String
+  url_image String?
+  role_Id Int
+  order Order []
+  customer Rol @relation(fields: [role_Id], references: [id], onDelete: Cascade)
+
+}
+
+model Rol{
+  id Int @id @default(autoincrement())
+  name String
+  user User []
+}
